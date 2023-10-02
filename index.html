@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajax POST request with JQuery and PHP</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="./style.css">
+</head>
+
+<body>
+
+    <h2>Texting Ajax Request with JQuery and PHP</h2>
+    <form action="">
+        <div class="box">
+            <label for="">First Name:</label><input type="text" name="firstName" id="firstName">
+        </div>
+        <div class="box">
+            <label for="">Last Name:</label><input type="text" name="lastName" id="lastName">
+        </div>
+        <div class="box">
+            <label for="">Email:</label><input type="text" name="email" id="email">
+        </div>
+        <div class="box">
+            <label for="">Message:</label><textarea type="text" name="message" id="message"></textarea>
+        </div>
+        <input type="button" id="submit" class="btn-submit" value="Submit">
+    </form>
+    <script>
+        $(document).ready(function() {
+            $("#submit").click(function() {
+                // Create variables
+                var firstName = $("#firstName").val();
+                var lastName = $("#lastName").val();
+                var email = $("#email").val();
+                var message = $("#message").val();
+
+                if(firstName==''||lastName==''||email==''||message=='') {
+                    alert("Please fill all fields.");
+                    return false;
+                }
+
+                // Call ajax request
+                $.ajax({
+                    type: "POST",
+                    url: "submission.php",
+                    data: {
+                        firstName: firstName,
+                        lastName: lastName,
+                        email: email,
+                        message: message
+                    },
+                    cache: false,
+                    success: function(data) {
+                        alert(data);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(xhr);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

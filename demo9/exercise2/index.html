@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Clock</title>
+    <style>
+        body {
+            background: black;
+        }
+
+        .clock {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-50%);
+            color: #17d4fe;
+            font-size: 60px;
+            font-family: Orbitron;
+            letter-spacing: 7px;
+        }
+
+        .test-text {
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="test-text">Digital Clock in JavaScript</h1>
+    <div id="MyClockDisplay" class="clock" onload="showTime()"></div>
+    <script type="text/javascript" src="myscripts.js"></script>
+</body>
+</html>
