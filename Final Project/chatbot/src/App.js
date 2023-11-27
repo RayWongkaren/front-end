@@ -1,9 +1,11 @@
 import logobot from './bot.png';
-import logouser from './user.png';
 import './App.css';
 import {build_dictionary, clean_input, response_user, response_bot, get_time} from './functions.js';
 import $ from 'jquery';
 import Header from './components/Header.jsx';
+import Navbar from './components/Navbar.jsx';
+import Sidebar from './components/Sidebar.jsx';
+import React, { useState } from 'react';
 
 // get data
 const brain = require('brain.js');
@@ -36,29 +38,46 @@ function encode(phrase) {
 
 // component function
 function App() {
+
+	const [sidebarOpen] = useState(true);
+
 	// make a prediction
 	function predict_bot(txt_chat_input){
-		// encode input text
-		const encoded = encode(clean_input(txt_chat_input))
-		// predict the response
-		const json_output = model_network.run(encoded);
-		console.log("Max Categories: "+Object.values(json_output).length+" intents.");
-		console.log(json_output);
-		// get max value using apply
-		const max = Math.max.apply(null, Object.values(json_output));
-		const index = Object.values(json_output).indexOf(max);
-		// get probability and pred_label
-		const pred_label = Object.keys(json_output)[index];
-		const pred_prob = json_output[''+pred_label];
-		var pred_response="";
-		for (var no in data_responses) {
-			if(data_responses[no][''+pred_label] != null){
-				pred_response = data_responses[no][''+pred_label];
-			}
-	    }
-		console.log('Predicted label ('+pred_label+'), probability ('+pred_prob+').'); 
-		return [pred_response, pred_prob];
-	}
+		if (txt_chat_input.toLowerCase().includes('waktu') || txt_chat_input.toLowerCase().includes('jam') || txt_chat_input.toLowerCase().includes('tanggal') ) {
+	   const currentDateTime = new Date();
+	   const currentDate = currentDateTime.toLocaleDateString(); // Ambil tanggal
+	   
+	   let response = `Saat ini tanggal ${currentDate}.`; // Buat respons dengan tanggal
+	   
+	   if (txt_chat_input.toLowerCase().includes('waktu') || txt_chat_input.toLowerCase().includes('jam')) {
+		   const currentTime = currentDateTime.toLocaleTimeString(); // Ambil waktu
+		   response = `Sekarang pukul ${currentTime} pada tanggal ${currentDate}.`; // Perbarui respons dengan waktu
+	   }
+	   
+	   return [response, 1]; // 1 digunakan untuk memberikan probabilitas 100% pada respons waktu
+   } else {
+	   // encode input text
+	   const encoded = encode(clean_input(txt_chat_input))
+	   // predict the response
+	   const json_output = model_network.run(encoded);
+	   console.log("Max Categories: "+Object.values(json_output).length+" intents.");
+	   console.log(json_output);
+	   // get max value using apply
+	   const max = Math.max.apply(null, Object.values(json_output));
+	   const index = Object.values(json_output).indexOf(max);
+	   // get probability and pred_label
+	   const pred_label = Object.keys(json_output)[index];
+	   const pred_prob = json_output[''+pred_label];
+	   var pred_response="";
+	   for (var no in data_responses) {
+		   if(data_responses[no][''+pred_label] != null){
+			   pred_response = data_responses[no][''+pred_label];
+		   }
+	   }
+	   console.log('Predicted label ('+pred_label+'), probability ('+pred_prob+').'); 
+	   return [pred_response, pred_prob];
+   }
+   }
 
 	// compile/execute chatbot
 	function run_chatbot(){
@@ -75,7 +94,7 @@ function App() {
 			
 			console.log('Response: '+respond_bot); 
 			
-			const threshold = 75;
+			const threshold = 30;
 			if(prob_val > threshold){
 				$("#content-chat-feed").append(response_bot(respond_bot, prob_val, get_time(new Date)));
 			}else{
@@ -112,27 +131,37 @@ function App() {
 	  
     return (
 		<div className="App">
-			<div className="card d-flex flex-column vh-100 overflow-hidden">
-				<Header />
-				<div className="card-body" style={{overflowY:"scroll"}} id="content-chat-feed">
-					<div className="containerbot">
-						<img src={logobot} alt="Avatar" style={{width:"100%"}}/>
-						<div className="row">
-							<div className="col-sm-8 pt-4">Hi, selamat datang :)</div>
-							<div className="col-sm-4 pt-2"><span className="time-right">98.99%<br />11:00 PM</span></div>
-						</div>
-					</div>
-				</div> 
-				<div className="card-footer"> 
-					<div className="input-group">
-						<input type="text" className="form-control" id="input-chat" onKeyDown={_handleKeyDown}/>
-						<div className="input-group-append">
-							<button className="btn btn-primary" type="button" onClick={handleButtonSend}>Send</button>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
+			<header class="header"><Header /></header>
+      		<nav><Navbar /></nav>
+      		<div className="container-fluid">
+        		<div className="row">
+          			<div className={`col-md-8 order-md-1 ${sidebarOpen ? '' : 'offset-md-4'}`}>
+            			<div className="card d-flex flex-column vh-100 overflow-hidden">
+            				<div className="card-body" style={{ overflowY: 'scroll' }} id="content-chat-feed">
+                				<div className="containerbot">
+									<img src={logobot} alt="Avatar" style={{width:"100%"}}/>
+									<div className="row">
+										<div className="col-sm-8 pt-4">Hi, selamat datang :)</div>
+										<div className="col-sm-4 pt-2"><span className="time-right">100%<br />11:00 PM</span></div>
+									</div>
+            					</div>
+            				</div>
+            				<div className="card-footer">
+									<div className="input-group">
+										<input type="text" className="form-control" id="input-chat" onKeyDown={_handleKeyDown}/>
+										<div className="input-group-append">
+											<button className="btn btn-primary" type="button" onClick={handleButtonSend}>Send</button>
+										</div>
+									</div>
+            				</div>
+            			</div>
+          			</div>
+          			<aside className={`col-md-4 ${sidebarOpen ? 'order-md-2' : 'd-none d-md-block'}`}>
+            			<Sidebar />
+          			</aside>
+        		</div>
+      		</div>
+    	</div>
     );
 }
 
